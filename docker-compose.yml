@@ -1,0 +1,43 @@
+---
+version: '3.8'
+
+services:
+
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    volumes:
+      - ${PWD}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090
+
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    depends_on:
+      - prometheus
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.systemd'
+      - '--collector.processes'
+    network_mode: host
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave'
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    depends_on:
+      - prometheus
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ${PWD}/grafana/dashboards:/var/lib/grafana/dashboards
+      - ${PWD}/grafana/provisioning:/etc/grafana/provisioning
+      - ${PWD}/grafana/config.ini:/etc/grafana/config.ini
+    ports:
+      - 3000:3000
+
+volumes:
+  grafana_data:
