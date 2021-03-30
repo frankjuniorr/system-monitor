@@ -28,7 +28,9 @@ System Monitor
     - docker-compose
 
   ## Use
-  To up the service
+  - Change the file `prometheus/prometheus.yml` and change the IP to your localhost IP
+
+  To up the service:
   ```bash
   ./run.sh --build
   ```
